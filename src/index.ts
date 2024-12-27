@@ -352,7 +352,7 @@ const openai = new OpenAI({
 
 async function extractInformation(text: string) {
   const prompt = `
-  menga bu texdan xulosa json korinishida berilgan savollarga xolosa chiqarib ber:
+  menga bu textdan xulosani json korinishida berilgan savollarga mos chiqarib ber:
 
   asosiy_xulosa:
   - ${TASK}? Answer in short form.
@@ -366,8 +366,8 @@ async function extractInformation(text: string) {
   The output should be in the following JSON format:
 
   {
-    "asosiy_xulosa": "your answer here",
-    "qoshimcha_xulosalar":"your answer here"
+    "asosiy_xulosa": "your answer here from text",
+    "qoshimcha_xulosalar":"your answer here from text"
   }
   `;
 
