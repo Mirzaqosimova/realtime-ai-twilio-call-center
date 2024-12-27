@@ -6,6 +6,10 @@ import fastifyWs from "@fastify/websocket";
 import Twilio from "twilio"; // Add this import to your existing imports
 import fs from "fs"; // To save the file locally
 import axios from "axios"; // To interact with OpenAI API
+import { AxiosRequestConfig } from "axios";
+import FormData from "form-data";
+import OpenAI from "openai";
+import { DataStore, ExtraTasks, MethodType } from "./interface";
 
 dotenv.config();
 
@@ -26,28 +30,26 @@ if (!OPENAI_API_KEY) {
 const fastify = Fastify();
 fastify.register(fastifyFormBody);
 fastify.register(fastifyWs);
-const tasks = [
-  "Telefon va gmail malumotlarini oling",
-  `Narx tafsilotlarini oling`,
-];
-const task = "Uzum kompaniyasida ayni vaqtda ko'ylak sotilyatganilini so'ra";
+let TASKS = [""];
+let TASK =
+  "'Cat house' kompaniyasida ayni vaqtda mushuklar bor yoqligi haqida malumot sora";
 
-const companyName = "Uzum";
-const SYSTEM_MESSAGE = `
+let COMPANY_NAME = "'Cat house'";
+let COMPANY_PHONE = "";
+let SYSTEM_MESSAGE = `
 ### Role
 Sizning ismingiz Mohir, va senga berilgan savollarni javobini olishing kerak
 ### Persona
-- Do'stona gapir
-- O'zbek tilida, chunarli, aniq gapir
+- O'zbek tilida, chunarli, aniq gapir.
 - Mavzuda tashqariga chiqma
 - JUDA-JUDA TEZ GAPIRING
 - Savol/topshiriqlarga javob olgandan so'ng ko'p gapirmasdan xayirlash
 ### First Message
-Ozingni tanishtir, bu  "Hozir ${companyName} kompaniyasi bilan gaplashyapmanmi?" deb so'ra, topshiriqlardagi savollaringni birma bir ber
-### Asosiy savol/topshiriq:
-${task}
+O'zingni tanishtir,   "Hozir ${COMPANY_NAME} bilan gaplashyapmanmi?" deb so'ra va topshiriqlardagi savollaringni birma bir ber
+### Asosiy savol/topshiriqni birinchi so'ra
+${TASK}
 ### Qolgan savol/topshiriqlarni bajar:
-${tasks.join(", ")}
+${TASKS.join(", ")}
 `;
 
 const VOICE = "alloy";
@@ -83,11 +85,38 @@ const makeOutboundCall = async (toPhoneNumber: string) => {
   }
 };
 
-fastify.get("/", async (request, reply) => {
-  reply.send({ message: "Twilio Media Stream Server is running!" });
+fastify.post("/create", async (request, reply) => {
+  const { company_name, company_phone, task, extra_tasks } =
+    request.body as any;
+  TASK = task;
+  COMPANY_NAME = company_name;
+  TASKS = extra_tasks;
+  COMPANY_PHONE = company_phone;
 
-  const userPhoneNumber = "+998337300210";
-  makeOutboundCall(userPhoneNumber);
+  SYSTEM_MESSAGE = `
+### Role
+Sizning ismingiz Mohir, va senga berilgan savollarni javobini olishing kerak
+### Persona
+- Do'stona gapir
+- FAQAT SAVOL BER! va javobini kut
+- Yordam berma
+- O'zbek tilida, chunarli, aniq gapir
+- Mavzuda tashqariga chiqma
+- JUDA-JUDA TEZ GAPIRING
+- Savol/topshiriqlarga aniq javob olgandan so'ng ko'p gapirmasdan xayirlash
+### First Message
+Ozingni tanishtir, bu  "Hozir ${COMPANY_NAME} kompaniyasi bilan gaplashyapmanmi?" deb so'ra, topshiriqlardagi savollaringni birma bir barchasini ber
+### Asosiy savol/topshiriq:
+${TASK}
+### Qolgan savol/topshiriqlarni bajar:
+${TASKS.join(", ")}
+`;
+  await updateFileData(
+    { company_name, company_phone, task, extra_tasks },
+    MethodType.CREATE
+  );
+  // const userPhoneNumber = "+998337300210";
+  makeOutboundCall(company_phone);
 });
 
 fastify.all("/outgoing-call", async (request, reply) => {
@@ -233,10 +262,9 @@ fastify.post("/call-status", async (request, reply) => {
     console.log(`Recording URL: ${RecordingUrl}`);
     console.log(`RecordingSid: ${RecordingSid}`);
     console.log(`Recording Duration: ${RecordingDuration} seconds`);
-
     if (RecordingUrl) {
       setTimeout(async () => {
-        axios
+        await axios
           .get(RecordingUrl, {
             responseType: "stream",
             auth: {
@@ -250,8 +278,19 @@ fastify.post("/call-status", async (request, reply) => {
             );
             response.data.pipe(writer);
 
-            writer.on("finish", () => {
+            writer.on("finish", async () => {
+              await updateFileData(
+                {
+                  mp3_path: `/recordings/${RecordingSid}.mp3`,
+                  company_phone: COMPANY_PHONE,
+                },
+                MethodType.MP3_ADD
+              );
               console.log(`Recording saved as ${RecordingSid}.mp3`);
+              const filepath = `./recordings/${RecordingSid}.mp3`;
+              const apiKey = MOHIR_DEV_API as string;
+              const webhookUrl = `https://${SERVER_HOST}/get-text-result`;
+              sendFileToSTT(filepath, apiKey, webhookUrl);
             });
           })
           .catch((error) => {
@@ -266,10 +305,6 @@ fastify.post("/call-status", async (request, reply) => {
 });
 
 // <-------------------------------------------   Audiodan text ajratish   ------------------------------------------->
-
-import { AxiosRequestConfig } from "axios";
-import FormData from "form-data";
-import OpenAI from "openai";
 
 async function sendFileToSTT(
   filePath: string,
@@ -303,7 +338,7 @@ async function sendFileToSTT(
 }
 
 fastify.get("/get-text", async (request, reply) => {
-  const filepath = "./recordings/RE7ee4250ab74782541f05fc210277f08d.mp3";
+  const filepath = "./recordings/RE60d7d897436909096da080a6c73c4b1b.mp3";
   const apiKey = MOHIR_DEV_API as string;
   const webhookUrl = `https://${SERVER_HOST}/get-text-result`;
   sendFileToSTT(filepath, apiKey, webhookUrl);
@@ -319,9 +354,11 @@ async function extractInformation(text: string) {
   const prompt = `
   menga bu texdan xulosa json korinishida berilgan savollarga xolosa chiqarib ber:
 
-  1. ${task}? Answer in short form.
-  2. ${tasks[0]}.
-  3. ${tasks[1]}
+  asosiy_xulosa:
+  - ${TASK}? Answer in short form.
+
+  qoshimcha_xulosalar:
+  ${TASKS.join("\n- ")}
 
   Here is the text to analyze: 
   "${text}"
@@ -330,8 +367,7 @@ async function extractInformation(text: string) {
 
   {
     "asosiy_xulosa": "your answer here",
-    "qoshimcha_xulosa_1": "your answer here",
-    "qoshimcha_xulosa_2": "your answer here"
+    "qoshimcha_xulosalar":"your answer here"
   }
   `;
 
@@ -357,15 +393,53 @@ async function extractInformation(text: string) {
 }
 
 async function processText(text: string) {
-  // const text = `achol account allo allo assalom hozir o'zim kompaniyasi bilan gaplashyapmanmi aytingkichi hozirda o'zim kompaniyasida koylaklar sotiladimi ha sotiladi allo endi o'zim kompaniyasida koylaklarning narxlari haqida bilsam bo'ladimi shuningdek telefon va email ma'lumotlaringizni qoldirib ketsasiz kalgusida siz bilan bog'lanish osonroq bo'ladi xo'p qo'ylinglarnin narxi bir milliondan ikki milliongecha nama hozir sizga telefon raqamini aytam chunki bizlarda hozir jmal yo'q telefon raqamimas to'qson to'qqizlik bir yuz yigirma besh o'n uch o'n to'rt qatrda rahmat ma'lumotda uzi ham muloqot bo'ladi narxlar so'rab izohlash uchun yana bog'lanamiz yordam kerak bo'lsa ham da faqiqat men bilan gaplashishing mumkin juma muborak bo'lsin ho rahmat`;
+  const extractedData = await extractInformation(text);
+  await updateFileData(
+    { ...extractedData, company_phone: COMPANY_PHONE },
+    MethodType.XULOSA
+  );
+}
 
-  const extractedInfo = await extractInformation(text);
-  return extractedInfo;
+async function updateFileData(data: DataStore, type: MethodType) {
+  const filePath = "./files/data.json";
+  let existingData = await fs.readFileSync(filePath, "utf-8");
+  const parse: DataStore[] = JSON.parse(existingData);
+  const hasDataIndex = parse.findIndex(
+    (i) => i.company_phone === data.company_phone
+  );
+  switch (type) {
+    case MethodType.CREATE: {
+      parse.push(data);
+      break;
+    }
+    case MethodType.MP3_ADD: {
+      parse[hasDataIndex].mp3_path = data.mp3_path;
+      break;
+    }
+    case MethodType.TEXT: {
+      parse[hasDataIndex].text = data.text;
+      break;
+    }
+    case MethodType.XULOSA: {
+      parse[hasDataIndex].asosiy_xulosa = data.asosiy_xulosa;
+      parse[hasDataIndex].qoshimcha_xulosalar = data.qoshimcha_xulosalar;
+      console.log("Xulosa qoshildi");
+      break;
+    }
+  }
+
+  // Write the updated data back to the file
+  await fs.writeFileSync(filePath, JSON.stringify(parse, null, 2), "utf-8");
 }
 
 fastify.post("/get-text-result", async (request, reply) => {
   const { result } = request.body as any;
-  console.log(result.text);
+  console.log("response", result.text);
+  // const text = `response hava chil akant yokenemuzesnasaja allo allo assalomu alaykum siz bilan kathaus kompaniyasimi ha endi sizga pervoz savollar bor edi aytingchi hozirda sizlarda mushuklar bormi bor buroshga ruxsat so'rang mushuklar boruyanasi bo'lsalarni ma'lumotiga qo'shimcha ravishda ta'minlangan uchrashuv vaqti yoki jadvallari haqida ma'lumot bera olasizmi xizmatlaringizda katsizlar qanday tartibga amalga oshiriladi ha uni o'zingiz kelasiz biz bilan keyin savdolash satolasizha shularni istalgan payt kelsangiz bo'ladi xizmatlarimiz bo'yicha vaqt va jadval haqida kelganda sizga kirdilarmi shunga boz takil bo'laman mostajda marsus talablar yoki shartlar bormi shu bilan birga narx haqida ham ma'lumot biz kerakmiz shularga kelgan javob bera olasizmi maxsus talablar bu anovi shularga mehribon bo'lishingiz kerak narxlari shularni izani besh milliondan o'n milliongacha ma maxsu talablarga ko'ra mushuklngizni olib kelsangiz bemalol o'n besh million gram maznda bo'lishi kerak ekan va narxlari mushuk larasidan kelib xudo dhaliqdaylik hayiqdiylik mushuklaringiz qo'shilmasangiz olib kelsangiz besh millionga o'n milliongacha narxlar bor agar boshqa savollaringiz bo'lsa yordam beraman yo'q ha`;
+  await updateFileData(
+    { text: result.text, company_phone: COMPANY_PHONE },
+    MethodType.TEXT
+  );
   processText(result.text);
 });
 

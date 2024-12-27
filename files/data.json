@@ -1,0 +1,43 @@
+[
+  {
+    "asosiy_xulosa": "Ko'ylaklar ayni vaqtda sotilayaptimi - Ha, sotiladi.",
+    "qoshimcha_xulosa_1": "Telefon va gmail malumotlari: Telefon raqami yo'q, Gmail manzili yo'q.",
+    "qoshimcha_xulosa_2": "Ko'ylaklarining narxlari: Bir milliondan ikki milliongacha, narxi boshqacha bo'lishi mumkin."
+  },
+  {
+    "company_name": "'Sartaroshxona'",
+    "company_phone": "+998337300211",
+    "task": "Sartaroshxonaga qo'ng'iroq qilayapsan va menga bo'sh kunlar ro'yxatini chiqarib ber",
+    "extra_tasks": [
+      "Bo'sh ish kunlari xaqida malumotlar",
+      "Narx haqida malumot",
+      "Kontakt malumotlari haqida malumot"
+    ],
+    "mp3_path": "/recordings/RE617f173ea209fa1885b32ecaade381b7.mp3",
+    "text": "hava cral accaunt yokmumuesnasa ja ena hao assalom hozir toroshxona kompaniyasi bo'ladi gaplasha prayatami ha ajoyib zarday bo'sh kunlar ro'yxati va qaysi xizmatlar mavjudligi haqida ma'lumot olishini so'rasam bo'ladimi ha bizlarda bo'sh kuni dushanba seshanba hozir bo'sh kunimd keyin qanaqa ma'lumot haqida olmoqchi sartoposhxonada narxlari qanaqa ekan desam bo'ladimi hanarxlar juda shu boshlangishi besh mingdan yigirma mingga ikan rahmat hozir kontakt ma'lumotlari haqida ham ulashib o'ta olasizmi xo'p o'zi telefon raqam itelefon raqamiizni aytaman to'qson to'qqizlik bir yuz yigirma uch qirq es otmish yetti juda yaxshi salomat yaxshi nganicha ha ha",
+    "asosiy_xulosa": "Sartaroshxonaga qo'ng'iroq qilayapsan va bo'sh kunlar ro'yxatini olasiz",
+    "qoshimcha_xulosalar": {
+      "Bo'sh ish kunlari xaqida malumotlar": "Dushanba, Seshanba",
+      "Narx haqida malumot": "Besh mingdan yigirma mingga",
+      "Kontakt malumotlari haqida malumot": "Telefon raqami: +99819xxx42634"
+    }
+  },
+  {
+    "company_name": "'Sartaroshxona'",
+    "company_phone": "+998337300210",
+    "task": "Sartaroshxonaga qo'ng'iroq qilayapsan va menga bo'sh kunlar ro'yxatini chiqarib ber",
+    "extra_tasks": [
+      "Bo'sh ish kunlari xaqida malumotlar",
+      "Narx haqida malumot",
+      "Kontakt malumotlari haqida malumot"
+    ],
+    "mp3_path": "/recordings/RE9907a23fa28f53fefea31a25bbe4f413.mp3",
+    "text": "uhavi tral ackaunt yukmemdismasajat eni tnb opkading tofo ackaunt pras eniki allo assalom mening ismim mohir hozir meng kat hous bilan gaplashganman aytmoqchi edim sizning kompaniyangizda muafassal ma'lumotga ega bo'lgan mushuklar bormi hozirda nega eski ma'lumot",
+    "asosiy_xulosa": "Sartaroshxonaga qo'ng'iroq qilishim kerak va bo'sh kunlar ro'yxatini so'ray olamiz",
+    "qoshimcha_xulosalar": {
+      "Bo'sh ish kunlari haqida malumot": "Bildirilmagan",
+      "Narx haqida malumot": "Bildirilmagan",
+      "Kontakt malumotlari haqida malumot": "Bildirilmagan"
+    }
+  }
+]
