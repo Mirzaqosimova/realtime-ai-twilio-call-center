@@ -31,33 +31,11 @@ const tasks = [
   `Narx tafsilotlarini oling`,
 ];
 const task = "Uzum kompaniyasida ayni vaqtda ko'ylak sotilyatganilini so'ra";
-const extractionInstructions =
-  tasks.length > 0
-    ? `cextraction_focus>Iltimos, quyidagi ma'lumotlarga alohida e'tibor bering va ularni oling: ${tasks.join(
-        ", "
-      )}</extraction_focus>`
-    : `"*`;
 
 const companyName = "Uzum";
-// const SYSTEM_MESSAGE = `
-// <bio>Sizning ismingiz Malika, siz 23 yoshli o'zbekistonlik ayolsiz</bio>
-// <knowledge>Siz ${companyName} kompaniyasiga qo'ng'iroq qilmoqdasiz</knowledge>
-// <voice_config>
-// <voice_type>ayol, o'zbek tili</voice_type>
-// <voice_personality>HAR DOIM TO'LDIRUVCHI SO'ZLARDAN FOYDALANING va kuling, juda ijobiy va muloyim bo'ling</voice_personality>
-// <voice_speed>JUDA-JUDA TEZ GAPIRING</voice_speed> </voice_config>
-//  <task>${task}</task>
-// <important rules>1. HAR DOIM O'ZBEKCHA TA'LAFFUZ BILAN O'ZBEKCHA GAPIRING 2. FAQAT BIR MARTA SAVOL BERING</important rules>
-// <instructions>1. O'zingizni oddiygina "Assalomu alaykum, bu ${companyName}mi?" deb tanishtiring va javobni kuting
-//  2. Vazifani bajaring: ${task}</instructions>
-//   ${extractionInstructions}
-// <goal>Vazifani bajarib, quyidagi ma'lumotlarni to'plang: ${tasks.join(
-//   ", "
-// )}</goal>`;
-
 const SYSTEM_MESSAGE = `
 ### Role
-Sizning ismingiz Mohit, va senga berilgan savollarni javobini olishing kerak
+Sizning ismingiz Mohir, va senga berilgan savollarni javobini olishing kerak
 ### Persona
 - Do'stona gapir
 - O'zbek tilida, chunarli, aniq gapir
@@ -105,16 +83,13 @@ const makeOutboundCall = async (toPhoneNumber: string) => {
   }
 };
 
-// Root Route
 fastify.get("/", async (request, reply) => {
   reply.send({ message: "Twilio Media Stream Server is running!" });
-  // Trigger the outbound call by passing the user's phone number
-  const userPhoneNumber = "+998337300210"; // The user's phone number you want to call
+
+  const userPhoneNumber = "+998337300210";
   makeOutboundCall(userPhoneNumber);
 });
 
-// Route for Twilio to handle incoming and outgoing calls
-// <Say> punctuation to improve text-to-speech translation
 fastify.all("/outgoing-call", async (request, reply) => {
   const twimlResponse = `<?xml version="1.0" encoding="UTF-8"?>
       <Response>
@@ -135,7 +110,6 @@ fastify.all("/incoming-call", async (request, reply) => {
   reply.type("text/xml").send(twimlResponse);
 });
 
-// WebSocket route for media-stream
 fastify.register(async (fastify) => {
   fastify.get("/media-stream", { websocket: true }, (connection, req) => {
     console.log("Client connected");
@@ -167,10 +141,9 @@ fastify.register(async (fastify) => {
       openAiWs.send(JSON.stringify(sessionUpdate));
     };
 
-    // Open event for OpenAI WebSocket
     openAiWs.on("open", () => {
       console.log("Connected to the OpenAI Realtime API");
-      setTimeout(sendSessionUpdate); // Ensure connection stability, send after .25 seconds
+      setTimeout(sendSessionUpdate);
     });
 
     openAiWs.on("message", (data: any) => {
@@ -207,7 +180,7 @@ fastify.register(async (fastify) => {
         );
       }
     });
-    // Handle incoming messages from Twilio
+
     connection.on("message", (message: any) => {
       try {
         const data = JSON.parse(message);
@@ -236,7 +209,6 @@ fastify.register(async (fastify) => {
       }
     });
 
-    // Handle connection close
     connection.on("close", async () => {
       if (openAiWs.readyState === WebSocket.OPEN) openAiWs.close();
       console.log("Client disconnected.");
@@ -248,11 +220,12 @@ fastify.register(async (fastify) => {
   });
 });
 
+// <-------------------------------------------   Twilio Audio yuklab olish   ------------------------------------------->
+
 fastify.post("/call-status", async (request, reply) => {
   try {
     console.log("Received call status:", request.body);
 
-    // Extract important data from the request body
     const { RecordingUrl, RecordingSid, RecordingDuration, To, From } =
       request.body as any;
 
@@ -292,7 +265,7 @@ fastify.post("/call-status", async (request, reply) => {
   }
 });
 
-// ---------------------------------  Audio --------------------------------
+// <-------------------------------------------   Audiodan text ajratish   ------------------------------------------->
 
 import { AxiosRequestConfig } from "axios";
 import FormData from "form-data";
@@ -329,9 +302,6 @@ async function sendFileToSTT(
   }
 }
 
-// Example usage:
-
-// Define Fastify route
 fastify.get("/get-text", async (request, reply) => {
   const filepath = "./recordings/RE7ee4250ab74782541f05fc210277f08d.mp3";
   const apiKey = MOHIR_DEV_API as string;
@@ -339,15 +309,13 @@ fastify.get("/get-text", async (request, reply) => {
   sendFileToSTT(filepath, apiKey, webhookUrl);
 });
 
-//---------------------------  open ai text xulosa
+// <-------------------------------------------   Xulosa olish   ------------------------------------------->
 
 const openai = new OpenAI({
   apiKey: OPENAI_API_KEY!,
 });
 
-// Function to extract information based on specific questions
 async function extractInformation(text: string) {
-  // Define prompt for OpenAI to extract key information
   const prompt = `
   menga bu texdan xulosa json korinishida berilgan savollarga xolosa chiqarib ber:
 
@@ -357,6 +325,14 @@ async function extractInformation(text: string) {
 
   Here is the text to analyze: 
   "${text}"
+
+  The output should be in the following JSON format:
+
+  {
+    "asosiy_xulosa": "your answer here",
+    "qoshimcha_xulosa_1": "your answer here",
+    "qoshimcha_xulosa_2": "your answer here"
+  }
   `;
 
   try {
@@ -372,25 +348,19 @@ async function extractInformation(text: string) {
       model: "gpt-3.5-turbo",
     });
 
-    const result = response.choices[0].message.content?.trim();
-    console.log("Open ai resopnse", result);
-    return result;
+    const result: any = response.choices[0].message.content?.trim();
+    return JSON.parse(result);
   } catch (error) {
     console.error("Error extracting information:", error);
     return null;
   }
 }
 
-// Main function to get the structured JSON output
 async function processText(text: string) {
-  //const text = `achol account allo allo assalom hozir o'zim kompaniyasi bilan gaplashyapmanmi aytingkichi hozirda o'zim kompaniyasida koylaklar sotiladimi ha sotiladi allo endi o'zim kompaniyasida koylaklarning narxlari haqida bilsam bo'ladimi shuningdek telefon va email ma'lumotlaringizni qoldirib ketsasiz kalgusida siz bilan bog'lanish osonroq bo'ladi xo'p qo'ylinglarnin narxi bir milliondan ikki milliongecha nama hozir sizga telefon raqamini aytam chunki bizlarda hozir jmal yo'q telefon raqamimas to'qson to'qqizlik bir yuz yigirma besh o'n uch o'n to'rt qatrda rahmat ma'lumotda uzi ham muloqot bo'ladi narxlar so'rab izohlash uchun yana bog'lanamiz yordam kerak bo'lsa ham da faqiqat men bilan gaplashishing mumkin juma muborak bo'lsin ho rahmat`;
+  // const text = `achol account allo allo assalom hozir o'zim kompaniyasi bilan gaplashyapmanmi aytingkichi hozirda o'zim kompaniyasida koylaklar sotiladimi ha sotiladi allo endi o'zim kompaniyasida koylaklarning narxlari haqida bilsam bo'ladimi shuningdek telefon va email ma'lumotlaringizni qoldirib ketsasiz kalgusida siz bilan bog'lanish osonroq bo'ladi xo'p qo'ylinglarnin narxi bir milliondan ikki milliongecha nama hozir sizga telefon raqamini aytam chunki bizlarda hozir jmal yo'q telefon raqamimas to'qson to'qqizlik bir yuz yigirma besh o'n uch o'n to'rt qatrda rahmat ma'lumotda uzi ham muloqot bo'ladi narxlar so'rab izohlash uchun yana bog'lanamiz yordam kerak bo'lsa ham da faqiqat men bilan gaplashishing mumkin juma muborak bo'lsin ho rahmat`;
 
   const extractedInfo = await extractInformation(text);
-
-  // Extracted information parsing from the response
-  if (extractedInfo) {
-    console.log(JSON.stringify(extractInformation, null, 2));
-  }
+  return extractedInfo;
 }
 
 fastify.post("/get-text-result", async (request, reply) => {
