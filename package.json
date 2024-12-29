@@ -14,7 +14,9 @@
   "license": "ISC",
   "packageManager": "pnpm@9.13.0+sha512.beb9e2a803db336c10c9af682b58ad7181ca0fbd0d4119f2b33d5f2582e96d6c0d93c85b23869295b765170fbdaa92890c0da6ada457415039769edf3c959efe",
   "dependencies": {
+    "@fastify/cors": "^10.0.1",
     "@fastify/formbody": "^8.0.1",
+    "@fastify/static": "^8.0.3",
     "@fastify/websocket": "^11.0.1",
     "axios": "^1.7.9",
     "dotenv": "^16.4.7",

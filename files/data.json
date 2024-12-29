@@ -1,43 +1,81 @@
 [
   {
-    "asosiy_xulosa": "Ko'ylaklar ayni vaqtda sotilayaptimi - Ha, sotiladi.",
-    "qoshimcha_xulosa_1": "Telefon va gmail malumotlari: Telefon raqami yo'q, Gmail manzili yo'q.",
-    "qoshimcha_xulosa_2": "Ko'ylaklarining narxlari: Bir milliondan ikki milliongacha, narxi boshqacha bo'lishi mumkin."
-  },
-  {
-    "company_name": "'Sartaroshxona'",
-    "company_phone": "+998337300211",
-    "task": "Sartaroshxonaga qo'ng'iroq qilayapsan va menga bo'sh kunlar ro'yxatini chiqarib ber",
+    "company_name": "Aifu universiteti",
+    "company_phone": "+998942559015",
+    "task": "Aifu qabul davom etayotganligini tekshir",
     "extra_tasks": [
       "Bo'sh ish kunlari xaqida malumotlar",
       "Narx haqida malumot",
       "Kontakt malumotlari haqida malumot"
     ],
-    "mp3_path": "/recordings/RE617f173ea209fa1885b32ecaade381b7.mp3",
-    "text": "hava cral accaunt yokmumuesnasa ja ena hao assalom hozir toroshxona kompaniyasi bo'ladi gaplasha prayatami ha ajoyib zarday bo'sh kunlar ro'yxati va qaysi xizmatlar mavjudligi haqida ma'lumot olishini so'rasam bo'ladimi ha bizlarda bo'sh kuni dushanba seshanba hozir bo'sh kunimd keyin qanaqa ma'lumot haqida olmoqchi sartoposhxonada narxlari qanaqa ekan desam bo'ladimi hanarxlar juda shu boshlangishi besh mingdan yigirma mingga ikan rahmat hozir kontakt ma'lumotlari haqida ham ulashib o'ta olasizmi xo'p o'zi telefon raqam itelefon raqamiizni aytaman to'qson to'qqizlik bir yuz yigirma uch qirq es otmish yetti juda yaxshi salomat yaxshi nganicha ha ha",
-    "asosiy_xulosa": "Sartaroshxonaga qo'ng'iroq qilayapsan va bo'sh kunlar ro'yxatini olasiz",
+    "mp3_path": "/recordings/RE19f79cf9186faea0c830917c45909d2a.mp3",
+    "text": "allo assalomu alaykum hozir if assalomu alaykum hozir if universiteti bilan gaplashyapmanmi rahmat yaxshi kuntlayman xayr assalomu alaykum hozir if universiteti bilan gaplashyapmanmi rahmat yaxshi kuntilayman xayr assalomu alaykum hozir ifhon universittetibilan",
+    "asosiy_xulosa": "Ha",
     "qoshimcha_xulosalar": {
-      "Bo'sh ish kunlari xaqida malumotlar": "Dushanba, Seshanba",
-      "Narx haqida malumot": "Besh mingdan yigirma mingga",
-      "Kontakt malumotlari haqida malumot": "Telefon raqami: +99819xxx42634"
+      "Bo'sh ish kunlari": "Bu hafta 12 kun bo'sh ish",
+      "Narx": "Narx haqida ma'lumot berilmagan",
+      "Kontakt malumotlari": "Gaplashyapman universiteti bilan"
     }
   },
   {
-    "company_name": "'Sartaroshxona'",
+    "company_name": "Uzum",
     "company_phone": "+998337300210",
-    "task": "Sartaroshxonaga qo'ng'iroq qilayapsan va menga bo'sh kunlar ro'yxatini chiqarib ber",
+    "task": "Sen uzum kompaniyasiga qo'ng'iroq qilyapsan va ulardan 1-yanvar ish kunimi yoki yo'qligini aniqla",
     "extra_tasks": [
-      "Bo'sh ish kunlari xaqida malumotlar",
-      "Narx haqida malumot",
+      "Bo'sh ish kunlari xaqida malumotlar"
+    ],
+    "created_at": "2024-12-28T18:20:50.334Z",
+    "mp3_path": "/recordings/REccd2c984fc4f9abf06fd884e5496d80e.mp3",
+    "asosiy_xulosa": "1-yanvar ish kuni emas.",
+    "qoshimcha_xulosalar": "Bo'sh ish kunlari dushanbadan chorshanbagacha.",
+    "text": "allo allo assalomu alaykum hozo o'zim bilan gaplashyapmanmi birinchi yanvar ish kunimi yoki yoqligini bilib bermagan bo'lardingizmi ha birinchi yanvar kuni bizlarda ish emas manma ganimu faqat bo'sh ish kunlari haqida qanday ma'lumot bera olasiz ha bo'sh ish kunlarimiz biz shu dushanbadan chorshanbagacha yaxshi tushundim katta rahmat sog bo'ling"
+  },
+  {
+    "company_name": "Yandex",
+    "company_phone": "+998337300210",
+    "task": "Yandex kompaniyasidan ular yangi yilda ishlashligini aniqla",
+    "extra_tasks": [
       "Kontakt malumotlari haqida malumot"
     ],
-    "mp3_path": "/recordings/RE9907a23fa28f53fefea31a25bbe4f413.mp3",
-    "text": "uhavi tral ackaunt yukmemdismasajat eni tnb opkading tofo ackaunt pras eniki allo assalom mening ismim mohir hozir meng kat hous bilan gaplashganman aytmoqchi edim sizning kompaniyangizda muafassal ma'lumotga ega bo'lgan mushuklar bormi hozirda nega eski ma'lumot",
-    "asosiy_xulosa": "Sartaroshxonaga qo'ng'iroq qilishim kerak va bo'sh kunlar ro'yxatini so'ray olamiz",
-    "qoshimcha_xulosalar": {
-      "Bo'sh ish kunlari haqida malumot": "Bildirilmagan",
-      "Narx haqida malumot": "Bildirilmagan",
-      "Kontakt malumotlari haqida malumot": "Bildirilmagan"
-    }
+    "created_at": "2024-12-28T18:51:38.415Z",
+    "mp3_path": "/recordings/REc61041ae28212a2e56af649a796e3e7f.mp3",
+    "text": "allo allo salom menmohir ayni vaqtda yandex bilan gaplashyapmanmi yandex kompaniyasidan ular yangi yilda ishlashlarini aniqlab olasizmi ha yangi yil kuni bizlar ishlamaymiz rahmat ma'lumot uchun kontakt ma'lumotlari haqida nima qanday yordam bera olasiz keluvchi yangi yil bayramlari uchun uchun yandex sehotgohlari yoki mehmonxonalari bor yo'qligini qaytib bera olasizmi yo'q bizlrda mehmonxona yo'q lekin telefon raqamimiz bor to'qson to'qqizlik yetti yuz o'ttiz nol ikki o'n yaxshi teng katta rahmat ma'lumot uchun xayr",
+    "asosiy_xulosa": "ular yangi yilda ishlashmaydi",
+    "qoshimcha_xulosalar": "telefon raqam 99 730 02 o'n"
+  },
+  {
+    "company_name": "Arzon. uz",
+    "company_phone": "+998337300210",
+    "task": "\"Arzon. uz\" ga qo'n'g'iroq qilyapsan va ular futbolka sotishligni aniqla",
+    "extra_tasks": [
+      "Narx tafsilotlari haqida malumot"
+    ],
+    "created_at": "2024-12-29T10:25:29.933Z",
+    "mp3_path": "/recordings/REb48d0cc6db592cc09dc77babfacd5c67.mp3",
+    "text": "allo allo assalom meningiz mohir ayni vaqtda arzon o'z bilan gaplashyapmanmi xayrli kun sizlarda futbolkalar sotilyaptimi aha sotilyapti ajoyib rahmat narx tafsilotlari haqida ham ma'lumot bera olasizmidingizha futbolkalarni narxi o'n mingdan yigirma minggacha rahmat bu ma'lumot uchun katta rahmat o'zim",
+    "asosiy_xulosa": "futbolka sotiladi",
+    "qoshimcha_xulosalar": "Futbolkalarni narxi o'n mingdan yigirma minggacha."
+  },
+  {
+    "company_name": "Abdumannon LLC",
+    "company_phone": "+998940995719",
+    "task": "Dasturchiga telefon qilinayabdi, va dasturchi oddiy python dastur yozish mumkinligini bilmoqchiman, shunga, uni python bilishini aniqlash kerak va narxini bilish kerak",
+    "extra_tasks": [
+      "Narx tafsilotlari haqida malumot"
+    ],
+    "created_at": "2024-12-29T10:44:13.057Z"
+  },
+  {
+    "company_name": "Abdumannon LLC",
+    "company_phone": "+998940995719",
+    "task": "Dasturchiga telefon qilinayabdi, va dasturchi oddiy python dastur yozish mumkinligini bilmoqchiman, shunga, uni python bilishini aniqlash kerak va narxini bilish kerak",
+    "extra_tasks": [
+      "Narx tafsilotlari haqida malumot"
+    ],
+    "created_at": "2024-12-29T10:45:03.927Z",
+    "mp3_path": "/recordings/RE68eb6edf61d5afeedf12accd55e048fa.mp3",
+    "text": "alo yay bot bilaman allo allo allo assalomu alaykum siz yanglain abdumanon alelfi bilan gaplashyapsizmi hozirgi vazifamich grovand collsta holi konsultatsiya o'tkazish sizdan bir necha savollar so'rashim kerak dasturchi haqida ma'lumot izlayapmiz",
+    "asosiy_xulosa": "Dasturchi oddiy Python dastur yozish mumkinligini bilmoqchiman, uni Python bilishini aniqlash va narxini bilish kerak.",
+    "qoshimcha_xulosalar": "Narx tafsilotlarini textdan o'qib tasdiqlovchi malumot topilmadi."
   }
 ]

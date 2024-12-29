@@ -40,4 +40,5 @@ export interface DataStore {
   text?: string;
   asosiy_xulosa?: string;
   qoshimcha_xulosalar?: string;
+  created_at?: string;
 }

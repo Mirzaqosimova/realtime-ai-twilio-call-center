@@ -11,6 +11,9 @@ import FormData from "form-data";
 import OpenAI from "openai";
 import { DataStore, ExtraTasks, MethodType } from "./interface";
 
+import path from "path";
+import fastifyStatic from "@fastify/static";
+
 dotenv.config();
 
 const {
@@ -30,23 +33,31 @@ if (!OPENAI_API_KEY) {
 const fastify = Fastify();
 fastify.register(fastifyFormBody);
 fastify.register(fastifyWs);
+fastify.register(require("@fastify/cors"), {
+  origin: true,
+});
+
+// Register the fastify-static plugin
+fastify.register(fastifyStatic, {
+  root: path.join(__dirname, "../recordings"), // Replace with the path to your /recordings folder
+  prefix: "/recordings/", // URL prefix for accessing the files
+});
 let TASKS = [""];
 let TASK =
   "'Cat house' kompaniyasida ayni vaqtda mushuklar bor yoqligi haqida malumot sora";
 
 let COMPANY_NAME = "'Cat house'";
-let COMPANY_PHONE = "";
+let CREATED_AT = "";
 let SYSTEM_MESSAGE = `
 ### Role
-Sizning ismingiz Mohir, va senga berilgan savollarni javobini olishing kerak
-### Persona
+Sizning ismingiz Mohir, va sen savol beradigan ai san.
 - O'zbek tilida, chunarli, aniq gapir.
 - Mavzuda tashqariga chiqma
 - JUDA-JUDA TEZ GAPIRING
 - Savol/topshiriqlarga javob olgandan so'ng ko'p gapirmasdan xayirlash
-### First Message
+### First message should be:
 O'zingni tanishtir,   "Hozir ${COMPANY_NAME} bilan gaplashyapmanmi?" deb so'ra va topshiriqlardagi savollaringni birma bir ber
-### Asosiy savol/topshiriqni birinchi so'ra
+### Berishing kerak bo'lgan asosiy savol
 ${TASK}
 ### Qolgan savol/topshiriqlarni bajar:
 ${TASKS.join(", ")}
@@ -91,34 +102,42 @@ fastify.post("/create", async (request, reply) => {
   TASK = task;
   COMPANY_NAME = company_name;
   TASKS = extra_tasks;
-  COMPANY_PHONE = company_phone;
-
+  CREATED_AT = new Date().toISOString();
   SYSTEM_MESSAGE = `
-### Role
-Sizning ismingiz Mohir, va senga berilgan savollarni javobini olishing kerak
-### Persona
-- Do'stona gapir
-- FAQAT SAVOL BER! va javobini kut
-- Yordam berma
-- O'zbek tilida, chunarli, aniq gapir
-- Mavzuda tashqariga chiqma
-- JUDA-JUDA TEZ GAPIRING
-- Savol/topshiriqlarga aniq javob olgandan so'ng ko'p gapirmasdan xayirlash
-### First Message
-Ozingni tanishtir, bu  "Hozir ${COMPANY_NAME} kompaniyasi bilan gaplashyapmanmi?" deb so'ra, topshiriqlardagi savollaringni birma bir barchasini ber
-### Asosiy savol/topshiriq:
-${TASK}
-### Qolgan savol/topshiriqlarni bajar:
-${TASKS.join(", ")}
-`;
+  ### Role
+  Sizning ismingiz Mohir, va sen savol berishing kerak.
+  - O'zbek tilida, chunarli, aniq gapir.
+  - Mavzuda tashqariga chiqma
+  - JUDA-JUDA TEZ GAPIRING
+  - Yordam berishni so'rama
+  - Savol/topshiriqlarga javob olgandan so'ng ko'p gapirmasdan xayirlash
+  ### First message should be:
+  O'zingni tanishtir, so'ng "Ayni vaqtda ${COMPANY_NAME} bilan gaplashyapmanmi?" deb so'ra va savollaringni birma bir ber.
+  ### Berishing kerak bo'lgan asosiy savol
+  ${TASK}
+  ### Qolgan savol/topshiriqlar:
+  ${TASKS.join(", ")}`;
+
   await updateFileData(
-    { company_name, company_phone, task, extra_tasks },
+    {
+      company_name,
+      company_phone,
+      task,
+      extra_tasks,
+      created_at: CREATED_AT,
+    },
     MethodType.CREATE
   );
   // const userPhoneNumber = "+998337300210";
   makeOutboundCall(company_phone);
+  reply.send({ status: 201, message: "Good job" });
 });
-
+fastify.get("/calls", async (request, reply) => {
+  const filePath = "./files/data.json";
+  let existingData = await fs.readFileSync(filePath, "utf-8");
+  const parse: DataStore[] = JSON.parse(existingData);
+  reply.send(parse);
+});
 fastify.all("/outgoing-call", async (request, reply) => {
   const twimlResponse = `<?xml version="1.0" encoding="UTF-8"?>
       <Response>
@@ -282,7 +301,7 @@ fastify.post("/call-status", async (request, reply) => {
               await updateFileData(
                 {
                   mp3_path: `/recordings/${RecordingSid}.mp3`,
-                  company_phone: COMPANY_PHONE,
+                  created_at: CREATED_AT,
                 },
                 MethodType.MP3_ADD
               );
@@ -337,12 +356,12 @@ async function sendFileToSTT(
   }
 }
 
-fastify.get("/get-text", async (request, reply) => {
-  const filepath = "./recordings/RE60d7d897436909096da080a6c73c4b1b.mp3";
-  const apiKey = MOHIR_DEV_API as string;
-  const webhookUrl = `https://${SERVER_HOST}/get-text-result`;
-  sendFileToSTT(filepath, apiKey, webhookUrl);
-});
+// fastify.get("/get-text", async (request, reply) => {
+//   const filepath = "./recordings/RE60d7d897436909096da080a6c73c4b1b.mp3";
+//   const apiKey = MOHIR_DEV_API as string;
+//   const webhookUrl = `https://${SERVER_HOST}/get-text-result`;
+//   sendFileToSTT(filepath, apiKey, webhookUrl);
+// });
 
 // <-------------------------------------------   Xulosa olish   ------------------------------------------->
 
@@ -377,7 +396,7 @@ async function extractInformation(text: string) {
         {
           role: "system",
           content:
-            "You are a helpful assistant that extracts key details from text in Uzbek language.",
+            "You are a helpful assistant that extracts conclusion from text in Uzbek language.",
         },
         { role: "user", content: prompt },
       ],
@@ -395,7 +414,7 @@ async function extractInformation(text: string) {
 async function processText(text: string) {
   const extractedData = await extractInformation(text);
   await updateFileData(
-    { ...extractedData, company_phone: COMPANY_PHONE },
+    { ...extractedData, created_at: CREATED_AT },
     MethodType.XULOSA
   );
 }
@@ -404,9 +423,8 @@ async function updateFileData(data: DataStore, type: MethodType) {
   const filePath = "./files/data.json";
   let existingData = await fs.readFileSync(filePath, "utf-8");
   const parse: DataStore[] = JSON.parse(existingData);
-  const hasDataIndex = parse.findIndex(
-    (i) => i.company_phone === data.company_phone
-  );
+  const hasDataIndex = parse.findIndex((i) => i.created_at === data.created_at);
+  console.log("update file", data, hasDataIndex);
   switch (type) {
     case MethodType.CREATE: {
       parse.push(data);
@@ -427,7 +445,7 @@ async function updateFileData(data: DataStore, type: MethodType) {
       break;
     }
   }
-
+  console.log(SYSTEM_MESSAGE);
   // Write the updated data back to the file
   await fs.writeFileSync(filePath, JSON.stringify(parse, null, 2), "utf-8");
 }
@@ -437,7 +455,7 @@ fastify.post("/get-text-result", async (request, reply) => {
   console.log("response", result.text);
   // const text = `response hava chil akant yokenemuzesnasaja allo allo assalomu alaykum siz bilan kathaus kompaniyasimi ha endi sizga pervoz savollar bor edi aytingchi hozirda sizlarda mushuklar bormi bor buroshga ruxsat so'rang mushuklar boruyanasi bo'lsalarni ma'lumotiga qo'shimcha ravishda ta'minlangan uchrashuv vaqti yoki jadvallari haqida ma'lumot bera olasizmi xizmatlaringizda katsizlar qanday tartibga amalga oshiriladi ha uni o'zingiz kelasiz biz bilan keyin savdolash satolasizha shularni istalgan payt kelsangiz bo'ladi xizmatlarimiz bo'yicha vaqt va jadval haqida kelganda sizga kirdilarmi shunga boz takil bo'laman mostajda marsus talablar yoki shartlar bormi shu bilan birga narx haqida ham ma'lumot biz kerakmiz shularga kelgan javob bera olasizmi maxsus talablar bu anovi shularga mehribon bo'lishingiz kerak narxlari shularni izani besh milliondan o'n milliongacha ma maxsu talablarga ko'ra mushuklngizni olib kelsangiz bemalol o'n besh million gram maznda bo'lishi kerak ekan va narxlari mushuk larasidan kelib xudo dhaliqdaylik hayiqdiylik mushuklaringiz qo'shilmasangiz olib kelsangiz besh millionga o'n milliongacha narxlar bor agar boshqa savollaringiz bo'lsa yordam beraman yo'q ha`;
   await updateFileData(
-    { text: result.text, company_phone: COMPANY_PHONE },
+    { text: result.text, created_at: CREATED_AT },
     MethodType.TEXT
   );
   processText(result.text);
